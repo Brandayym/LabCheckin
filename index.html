@@ -14,6 +14,7 @@
       --border: #E5E5EA;
       --danger: #FF3B30;
       --warning: #FF9500;
+      --success: #34C759;
     }
 
     body {
@@ -26,7 +27,7 @@
     }
 
     h1 { font-size: 22px; margin-bottom: 12px; font-weight: 700; }
-    h2 { font-size: 18px; margin-top: 0; margin-bottom: 8px; color: #000; }
+    h2 { font-size: 16px; margin: 0 0 8px 0; color: #000; }
 
     .btn {
       background-color: var(--primary);
@@ -46,60 +47,81 @@
     .btn-secondary { background-color: #E5E5EA; color: #000; }
     .btn-danger { background-color: #FFE5E5; color: var(--danger); }
 
-    .card {
-      background: var(--card-bg);
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      position: relative;
+    /* Lab Group Styling */
+    .lab-group {
+      background: #EBF3FF;
+      border: 1px solid #C6DCFF;
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 20px;
     }
 
-    .lab-tag {
-      display: inline-block;
-      background: #E1F0FF;
+    .lab-title {
+      font-size: 18px;
+      font-weight: 700;
       color: var(--primary);
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .card:last-child { margin-bottom: 0; }
 
     .status-badge {
       display: inline-block;
-      padding: 4px 10px;
+      padding: 3px 8px;
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       background: #E5E5EA;
       float: right;
     }
 
-    .task-list { list-style: none; padding: 0; margin: 12px 0; }
+    .task-list { list-style: none; padding: 0; margin: 10px 0; }
     .task-item {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       padding: 8px 0;
       border-bottom: 1px solid var(--border);
     }
     .task-item:last-child { border-bottom: none; }
-    .task-item input { margin-right: 12px; transform: scale(1.3); cursor: pointer; }
+    .task-item input[type="checkbox"] { margin-right: 10px; margin-top: 3px; transform: scale(1.2); }
+
+    .task-details { flex-grow: 1; }
+    .task-meta { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+    .badge-sub {
+      display: inline-block;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 10px;
+      background: #F2F2F7;
+      color: #555;
+      margin-left: 4px;
+    }
+    .badge-recurring { background: #E8FAEB; color: var(--success); }
 
     .notes-box {
       background: #F9F9FB;
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 10px;
-      font-size: 13px;
+      padding: 8px 10px;
+      font-size: 12px;
       color: #444;
-      margin-top: 10px;
+      margin-top: 8px;
       white-space: pre-wrap;
-      line-height: 1.4;
     }
 
-    .deadline { font-size: 12px; color: var(--warning); margin-top: 6px; font-weight: 600; }
+    .deadline { font-size: 12px; color: var(--warning); margin-top: 4px; font-weight: 600; }
 
+    /* Modals */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -122,18 +144,19 @@
       overflow-y: auto;
     }
 
+    label { font-size: 13px; font-weight: 600; margin-top: 8px; display: block; }
     select, textarea, input[type="text"], input[type="date"] {
       width: 100%;
-      padding: 10px;
+      padding: 9px;
       border-radius: 8px;
       border: 1px solid var(--border);
-      margin-top: 6px;
-      margin-bottom: 12px;
+      margin-top: 4px;
+      margin-bottom: 10px;
       box-sizing: border-box;
       font-size: 14px;
     }
 
-    .action-btn-group { display: flex; gap: 8px; margin-top: 8px; }
+    .action-btn-group { display: flex; gap: 8px; margin-top: 12px; }
   </style>
 </head>
 <body>
@@ -141,17 +164,17 @@
   <h1>🧪 Lab Project Reviewer</h1>
   <button class="btn" onclick="startWeeklyReview()">🔄 開始每週 Review 模式</button>
   <button class="btn btn-secondary" onclick="addNewProject()">➕ 新增 Project</button>
-  <button class="btn btn-danger" style="font-size:12px; padding:6px; margin-bottom:16px;" onclick="clearAllDemo()">🗑️ 清空所有範例數據</button>
+  <button class="btn btn-danger" style="font-size:12px; padding:6px; margin-bottom:16px;" onclick="clearAllDemo()">🗑️ 清空所有數據</button>
 
   <div id="projectContainer"></div>
 
-  <!-- Review Modal -->
+  <!-- Weekly Review Modal -->
   <div id="reviewModal" class="modal-overlay" style="display:none;">
     <div class="modal">
-      <div id="modalLab" class="lab-tag">Lab A</div>
-      <h2 id="modalTitle">Project Name</h2>
+      <div id="modalLab" style="font-size:12px; font-weight:700; color:var(--primary);">Lab A</div>
+      <h2 id="modalTitle" style="margin-top:4px;">Project Name</h2>
       
-      <label><b>Update Status:</b></label>
+      <label>Update Status:</label>
       <select id="modalStatus">
         <option value="Pending start">Pending start</option>
         <option value="Idea only">Idea only</option>
@@ -162,7 +185,7 @@
         <option value="Published/Finished">Published/Finished</option>
       </select>
 
-      <label><b>備註情況 (上次 Input):</b></label>
+      <label>備註情況 (上次 Input):</label>
       <textarea id="modalNotes" rows="3" placeholder="輸入最新情況備註..."></textarea>
 
       <div class="action-btn-group">
@@ -172,36 +195,39 @@
     </div>
   </div>
 
-  <script>
-    const defaultData = [
-      {
-        id: 1,
-        lab: "Lab Alpha",
-        name: "Aging & Intergenerational Relationships Study",
-        status: "In progress",
-        deadline: "2026-08-15",
-        notes: "已完成問卷收集，準備進行數據分析。",
-        subtasks: [
-          { id: 101, text: "清理數據集 (Data Cleaning)", done: false },
-          { id: 102, text: "撰寫 Introduction 段落", done: false },
-          { id: 103, text: "確定研究假設 (Hypotheses)", done: true }
-        ]
-      },
-      {
-        id: 2,
-        lab: "Lab Beta",
-        name: "Motivational Interviewing Intervention Protocol",
-        status: "Manuscript writing",
-        deadline: "2026-08-05",
-        notes: "等待 Co-author 反饋 Discussion 部分。",
-        subtasks: [
-          { id: 201, text: "修正 References 格式", done: false }
-        ]
-      }
-    ];
+  <!-- Add Subtask Modal -->
+  <div id="subtaskModal" class="modal-overlay" style="display:none;">
+    <div class="modal">
+      <h3>➕ 新增 Sub-task</h3>
+      <label>Sub-task 內容 *</label>
+      <input type="text" id="subtaskText" placeholder="例如：Submit IRB renewal">
 
-    let projects = JSON.parse(localStorage.getItem('lab_projects')) || defaultData;
+      <label>Status (Optional)</label>
+      <select id="subtaskStatus">
+        <option value="">-- 預設 (無特定狀態) --</option>
+        <option value="To Do">To Do</option>
+        <option value="In Progress">In Progress</option>
+      </select>
+
+      <label>Sub-task Deadline (Optional)</label>
+      <input type="date" id="subtaskDeadline">
+
+      <div style="margin-top:8px; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+        <input type="checkbox" id="subtaskRecurring" style="transform:scale(1.2);">
+        <label for="subtaskRecurring" style="margin:0; font-weight:normal; cursor:pointer;">🔄 設為每週 Recurring Task (完成後自動為下週建立新 Task)</label>
+      </div>
+
+      <div class="action-btn-group">
+        <button class="btn" onclick="saveSubtask()">新增</button>
+        <button class="btn btn-secondary" onclick="closeSubtaskModal()">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let projects = JSON.parse(localStorage.getItem('lab_projects')) || [];
     let currentReviewIndex = 0;
+    let targetProjectIndex = null;
 
     function saveStorage() {
       localStorage.setItem('lab_projects', JSON.stringify(projects));
@@ -217,57 +243,126 @@
         return;
       }
 
+      // Group projects by Lab
+      const labs = {};
       projects.forEach((proj, pIdx) => {
-        const activeTasks = proj.subtasks.filter(t => !t.done);
-        const archivedCount = proj.subtasks.filter(t => t.done).length;
-
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <span class="lab-tag">${proj.lab}</span>
-          <span class="status-badge">${proj.status}</span>
-          <h2>${proj.name}</h2>
-          ${proj.deadline ? `<div class="deadline">⏰ Deadline: ${proj.deadline}</div>` : ''}
-          
-          <ul class="task-list">
-            ${activeTasks.map(t => `
-              <li class="task-item">
-                <input type="checkbox" onchange="toggleSubtask(${pIdx}, ${t.id})">
-                <span>${t.text}</span>
-              </li>
-            `).join('')}
-          </ul>
-          
-          <div style="font-size:12px; color:var(--text-sub);">
-            ${archivedCount > 0 ? `📦 已完成/歸檔 Task: ${archivedCount} 個` : ''}
-          </div>
-
-          ${proj.notes ? `<div class="notes-box">📝 <b>上次備註：</b>\n${proj.notes}</div>` : ''}
-          
-          <div style="margin-top: 12px; display:flex; gap:8px;">
-            <button class="btn btn-secondary" style="padding:6px 12px; font-size:12px; width:auto; margin:0;" onclick="addSubtask(${pIdx})">+ Sub-task</button>
-            <button class="btn btn-secondary" style="padding:6px 12px; font-size:12px; width:auto; margin:0;" onclick="editProject(${pIdx})">✏️ 編輯</button>
-            <button class="btn btn-danger" style="padding:6px 12px; font-size:12px; width:auto; margin:0;" onclick="deleteProject(${pIdx})">🗑️ 刪除</button>
-          </div>
-        `;
-        container.appendChild(card);
+        const labName = proj.lab || 'Unassigned Lab';
+        if (!labs[labName]) labs[labName] = [];
+        labs[labName].push({ proj, pIdx });
       });
+
+      // Render Labs
+      for (const [labName, projList] of Object.entries(labs)) {
+        const labGroup = document.createElement('div');
+        labGroup.className = 'lab-group';
+        
+        let projectsHTML = `<div class="lab-title">🔬 ${labName}</div>`;
+
+        projList.forEach(({ proj, pIdx }) => {
+          const activeTasks = proj.subtasks.filter(t => !t.done);
+          const archivedCount = proj.subtasks.filter(t => t.done).length;
+
+          projectsHTML += `
+            <div class="card">
+              <span class="status-badge">${proj.status}</span>
+              <h2>${proj.name}</h2>
+              ${proj.deadline ? `<div class="deadline">⏰ Project Deadline: ${proj.deadline}</div>` : ''}
+              
+              <ul class="task-list">
+                ${activeTasks.map(t => `
+                  <li class="task-item">
+                    <input type="checkbox" onchange="toggleSubtask(${pIdx}, ${t.id})">
+                    <div class="task-details">
+                      <div>
+                        <span>${t.text}</span>
+                        ${t.status ? `<span class="badge-sub">${t.status}</span>` : ''}
+                        ${t.recurring ? `<span class="badge-sub badge-recurring">🔄 Recurring</span>` : ''}
+                      </div>
+                      ${t.deadline ? `<div class="task-meta">⏰ Due: ${t.deadline}</div>` : ''}
+                    </div>
+                  </li>
+                `).join('')}
+              </ul>
+              
+              <div style="font-size:11px; color:var(--text-sub);">
+                ${archivedCount > 0 ? `📦 已完成/歸檔 Sub-tasks: ${archivedCount} 個` : ''}
+              </div>
+
+              ${proj.notes ? `<div class="notes-box">📝 <b>上次備註：</b>\n${proj.notes}</div>` : ''}
+              
+              <div style="margin-top: 12px; display:flex; gap:6px;">
+                <button class="btn btn-secondary" style="padding:5px 10px; font-size:12px; width:auto; margin:0;" onclick="openSubtaskModal(${pIdx})">+ Sub-task</button>
+                <button class="btn btn-secondary" style="padding:5px 10px; font-size:12px; width:auto; margin:0;" onclick="editProject(${pIdx})">✏️ 編輯</button>
+                <button class="btn btn-danger" style="padding:5px 10px; font-size:12px; width:auto; margin:0;" onclick="deleteProject(${pIdx})">🗑️ 刪除</button>
+              </div>
+            </div>
+          `;
+        });
+
+        labGroup.innerHTML = projectsHTML;
+        container.appendChild(labGroup);
+      }
     }
 
     function toggleSubtask(pIdx, taskId) {
       const task = projects[pIdx].subtasks.find(t => t.id === taskId);
       if (task) {
-        task.done = true;
+        task.done = true; // Complete and archive
+
+        // If recurring, automatically duplicate for next week
+        if (task.recurring) {
+          let nextDueDate = "";
+          if (task.deadline) {
+            const d = new Date(task.deadline);
+            d.setDate(d.getDate() + 7);
+            nextDueDate = d.toISOString().split('T')[0];
+          }
+          projects[pIdx].subtasks.push({
+            id: Date.now(),
+            text: task.text,
+            status: task.status,
+            deadline: nextDueDate,
+            recurring: true,
+            done: false
+          });
+        }
         saveStorage();
       }
     }
 
-    function addSubtask(pIdx) {
-      const text = prompt("請輸入新增的 Sub-task 內容：");
-      if (text) {
-        projects[pIdx].subtasks.push({ id: Date.now(), text: text, done: false });
-        saveStorage();
-      }
+    // Subtask Modal Logic
+    function openSubtaskModal(pIdx) {
+      targetProjectIndex = pIdx;
+      document.getElementById('subtaskText').value = '';
+      document.getElementById('subtaskStatus').value = '';
+      document.getElementById('subtaskDeadline').value = '';
+      document.getElementById('subtaskRecurring').checked = false;
+      document.getElementById('subtaskModal').style.display = 'flex';
+    }
+
+    function closeSubtaskModal() {
+      document.getElementById('subtaskModal').style.display = 'none';
+    }
+
+    function saveSubtask() {
+      const text = document.getElementById('subtaskText').value.trim();
+      if (!text) return alert("請輸入 Sub-task 內容！");
+
+      const status = document.getElementById('subtaskStatus').value;
+      const deadline = document.getElementById('subtaskDeadline').value;
+      const recurring = document.getElementById('subtaskRecurring').checked;
+
+      projects[targetProjectIndex].subtasks.push({
+        id: Date.now(),
+        text: text,
+        status: status || "",
+        deadline: deadline || "",
+        recurring: recurring,
+        done: false
+      });
+
+      closeSubtaskModal();
+      saveStorage();
     }
 
     function editProject(pIdx) {
@@ -276,7 +371,7 @@
       if (newLab === null) return;
       const newName = prompt("修改 Project 名稱：", proj.name);
       if (newName === null) return;
-      const newDeadline = prompt("修改 Deadline (YYYY-MM-DD)：", proj.deadline || "");
+      const newDeadline = prompt("修改 Project Deadline (YYYY-MM-DD)：", proj.deadline || "");
 
       proj.lab = newLab || proj.lab;
       proj.name = newName || proj.name;
@@ -292,12 +387,13 @@
     }
 
     function clearAllDemo() {
-      if (confirm("確定要清空所有資料（包括範例）嗎？")) {
+      if (confirm("確定要清空所有資料嗎？")) {
         projects = [];
         saveStorage();
       }
     }
 
+    // Weekly Review Modal Logic
     function startWeeklyReview() {
       if (projects.length === 0) return alert("目前沒有 Project！");
       currentReviewIndex = 0;
@@ -312,7 +408,7 @@
       }
 
       const proj = projects[currentReviewIndex];
-      document.getElementById('modalLab').innerText = proj.lab;
+      document.getElementById('modalLab').innerText = "🔬 " + (proj.lab || "Unassigned Lab");
       document.getElementById('modalTitle').innerText = proj.name;
       document.getElementById('modalStatus').value = proj.status;
       document.getElementById('modalNotes').value = proj.notes || '';
@@ -333,15 +429,15 @@
     }
 
     function addNewProject() {
-      const lab = prompt("請輸入 Lab 名稱 (例如: Lab A)：");
+      const lab = prompt("請輸入 Lab 名稱 (如已存在會自動歸類到同一個 Lab)：");
       const name = prompt("請輸入 Project 名稱：");
-      const deadline = prompt("請輸入 Deadline (YYYY-MM-DD，可空白)：");
+      const deadline = prompt("請輸入 Project Deadline (YYYY-MM-DD，可空白)：");
 
       if (lab && name) {
         projects.push({
           id: Date.now(),
-          lab: lab,
-          name: name,
+          lab: lab.trim(),
+          name: name.trim(),
           status: "Pending start",
           deadline: deadline || "",
           notes: "",

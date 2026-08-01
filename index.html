@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Lab Project Reviewer</title>
+  <style>
+    :root {
+      --bg: #F2F2F7;
+      --card-bg: #FFFFFF;
+      --primary: #007AFF;
+      --text: #1C1C1E;
+      --text-sub: #8E8E93;
+      --border: #E5E5EA;
+      --danger: #FF3B30;
+      --warning: #FF9500;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 16px;
+      padding-bottom: 40px;
+    }
+
+    h1 { font-size: 22px; margin-bottom: 12px; }
+    h2 { font-size: 18px; margin-top: 0; }
+
+    .btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 15px;
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+      cursor: pointer;
+    }
+
+    .btn-secondary {
+      background-color: #E5E5EA;
+      color: #000;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .lab-tag {
+      display: inline-block;
+      background: #E1F0FF;
+      color: var(--primary);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      background: #E5E5EA;
+      float: right;
+    }
+
+    .task-list { list-style: none; padding: 0; margin: 12px 0; }
+    .task-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-item input { margin-right: 10px; transform: scale(1.2); }
+
+    .notes-box {
+      background: #F9F9FB;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 13px;
+      color: #555;
+      margin-top: 8px;
+      white-space: pre-wrap;
+    }
+
+    .deadline {
+      font-size: 12px;
+      color: var(--warning);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    /* Review Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 999;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      box-sizing: border-box;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    select, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-top: 6px;
+      margin-bottom: 12px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🧪 Lab Projects Review</h1>
+  <button class="btn" onclick="startWeeklyReview()">🔄 開始每週 Review 模式</button>
+  <button class="btn btn-secondary" onclick="addNewProject()">➕ 新增 Project</button>
+
+  <div id="projectContainer"></div>
+
+  <!-- Review Modal -->
+  <div id="reviewModal" class="modal-overlay" style="display:none;">
+    <div class="modal">
+      <div id="modalLab" class="lab-tag">Lab A</div>
+      <h2 id="modalTitle">Project Name</h2>
+      
+      <label>Status:</label>
+      <select id="modalStatus">
+        <option value="Pending start">Pending start</option>
+        <option value="Idea only">Idea only</option>
+        <option value="In progress">In progress</option>
+        <option value="Manuscript writing">Manuscript writing</option>
+        <option value="Submitted">Submitted</option>
+        <option value="Under review">Under review</option>
+        <option value="Published/Finished">Published/Finished</option>
+      </select>
+
+      <label>備註情況 (上次 Input):</label>
+      <textarea id="modalNotes" rows="3"></textarea>
+
+      <div style="display:flex; gap: 8px;">
+        <button class="btn" onclick="saveReviewStep()">更新並下一頁</button>
+        <button class="btn btn-secondary" onclick="nextReviewStep()">No Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 預設/測試資料 (初次載入時寫入)
+    const defaultData = [
+      {
+        id: 1,
+        lab: "Lab Alpha",
+        name: "Aging & Intergenerational Relationships Study",
+        status: "In progress",
+        deadline: "2026-08-15",
+        notes: "已完成問卷收集，準備做數據分析。",
+        subtasks: [
+          { id: 101, text: "清理數據集 (Data Cleaning)", done: false },
+          { id: 102, text: "撰寫 Introduction 段落", done: false },
+          { id: 103, text: "確定研究假設 (Hypotheses)", done: true }
+        ]
+      },
+      {
+        id: 2,
+        lab: "Lab Beta",
+        name: "Motivational Interviewing Intervention Protocol",
+        status: "Manuscript writing",
+        deadline: "2026-08-05",
+        notes: "等待 Co-author 反饋 Discussion 部分。",
+        subtasks: [
+          { id: 201, text: "修正 References 格式", done: false }
+        ]
+      }
+    ];
+
+    let projects = JSON.parse(localStorage.getItem('lab_projects')) || defaultData;
+    let currentReviewIndex = 0;
+
+    function saveStorage() {
+      localStorage.setItem('lab_projects', JSON.stringify(projects));
+      renderProjects();
+    }
+
+    function renderProjects() {
+      const container = document.getElementById('projectContainer');
+      container.innerHTML = '';
+
+      projects.forEach((proj, pIdx) => {
+        const activeTasks = proj.subtasks.filter(t => !t.done);
+        const archivedCount = proj.subtasks.filter(t => t.done).length;
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <span class="lab-tag">${proj.lab}</span>
+          <span class="status-badge">${proj.status}</span>
+          <h2>${proj.name}</h2>
+          ${proj.deadline ? `<div class="deadline">⏰ Deadline: ${proj.deadline}</div>` : ''}
+          
+          <ul class="task-list">
+            ${activeTasks.map(t => `
+              <li class="task-item">
+                <input type="checkbox" onchange="toggleSubtask(${pIdx}, ${t.id})">
+                <span>${t.text}</span>
+              </li>
+            `).join('')}
+          </ul>
+          
+          <div style="font-size:12px; color:var(--text-sub);">
+            ${archivedCount > 0 ? `📦 已完成/歸檔 Task: ${archivedCount} 個` : ''}
+          </div>
+
+          ${proj.notes ? `<div class="notes-box">📝 <b>上次備註：</b>\n${proj.notes}</div>` : ''}
+          
+          <div style="margin-top: 10px;">
+            <button class="btn btn-secondary" style="padding:6px 12px; font-size:12px; width:auto;" onclick="addSubtask(${pIdx})">+ 新增 Sub-task</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function toggleSubtask(pIdx, taskId) {
+      const task = projects[pIdx].subtasks.find(t => t.id === taskId);
+      if (task) {
+        task.done = true; // 剔選後標記為完成 (自動視為 Archived)
+        saveStorage();
+      }
+    }
+
+    function addSubtask(pIdx) {
+      const text = prompt("請輸入新增的 Sub-task 內容：");
+      if (text) {
+        projects[pIdx].subtasks.push({ id: Date.now(), text: text, done: false });
+        saveStorage();
+      }
+    }
+
+    // --- 每週 Review 模式 ---
+    function startWeeklyReview() {
+      if (projects.length === 0) return alert("目前沒有 Project！");
+      currentReviewIndex = 0;
+      showReviewModal();
+    }
+
+    function showReviewModal() {
+      if (currentReviewIndex >= projects.length) {
+        document.getElementById('reviewModal').style.display = 'none';
+        alert("🎉 每週 Review 已完成！");
+        return;
+      }
+
+      const proj = projects[currentReviewIndex];
+      document.getElementById('modalLab').innerText = proj.lab;
+      document.getElementById('modalTitle').innerText = proj.name;
+      document.getElementById('modalStatus').value = proj.status;
+      document.getElementById('modalNotes').value = proj.notes || '';
+      document.getElementById('reviewModal').style.display = 'flex';
+    }
+
+    function saveReviewStep() {
+      const proj = projects[currentReviewIndex];
+      proj.status = document.getElementById('modalStatus').value;
+      proj.notes = document.getElementById('modalNotes').value;
+      saveStorage();
+      nextReviewStep();
+    }
+
+    function nextReviewStep() {
+      currentReviewIndex++;
+      showReviewModal();
+    }
+
+    function addNewProject() {
+      const lab = prompt("請輸入 Lab 名稱 (例如: Lab A)：");
+      const name = prompt("請輸入 Project 名稱：");
+      const deadline = prompt("請輸入 Deadline (YYYY-MM-DD，可空白)：");
+
+      if (lab && name) {
+        projects.push({
+          id: Date.now(),
+          lab: lab,
+          name: name,
+          status: "Pending start",
+          deadline: deadline || "",
+          notes: "",
+          subtasks: []
+        });
+        saveStorage();
+      }
+    }
+
+    // 初始化渲染
+    renderProjects();
+  </script>
+</body>
+</html>
